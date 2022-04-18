@@ -1,0 +1,7 @@
+os
+vk_api
+wikipedia
+requests
+bs4
+pymorphy2
+sqlalchemy

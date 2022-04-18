@@ -121,7 +121,7 @@ def main_keyboard(toponym_to_find=None, org=None):
     keyboard.add_button("Текущая погода в", VkKeyboardColor.POSITIVE)
     keyboard.add_line()
     keyboard.add_button("Новости", VkKeyboardColor.NEGATIVE)
-    keyboard.add_button("Организации рядом", VkKeyboardColor.PRIMARY)
+    keyboard.add_button("Организации в", VkKeyboardColor.PRIMARY)
     random_id = random.randint(0, 10000000)
 
     if toponym_to_find:
@@ -259,7 +259,7 @@ for event in longpol.listen():
                                                     {titles[4]}
                                                     {titles[5]}''')
 
-                    elif msg == 'Организации рядом':
+                    elif msg == 'Организации в':
                         send_messages(chat_id, 'Укажите город')
                         for event in longpol.listen():
                             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
@@ -291,15 +291,7 @@ for event in longpol.listen():
 
                                             for feature in json_response["features"]:
                                                 point = feature["geometry"]["coordinates"]
-                                                if feature["properties"]["CompanyMetaData"]["Hours"]["text"] != '':
-                                                    if "круглосуточно" in \
-                                                            feature["properties"]["CompanyMetaData"]["Hours"][
-                                                                "text"]:
-                                                        points.append(f"{point[0]},{point[1]},pm2gnm")
-                                                    else:
-                                                        points.append(f"{point[0]},{point[1]},pm2blm")
-                                                else:
-                                                    points.append(f"{point[0]},{point[1]},pm2grm")
+                                                points.append(f"{point[0]},{point[1]},pm2grm")
                                             delta = '0.05'
                                             map_params = {
                                                 "ll": ll,

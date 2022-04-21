@@ -23,6 +23,7 @@ upload = VkUpload(vk)
 longpol = VkLongPoll(vk)
 wikipedia.set_lang("RU")
 morph = pymorphy2.MorphAnalyzer()
+currencies = {'евро': "EUR", "доллар": "USD", "фунты": "GBP", "юань": "CNY", "рубль": "RUB"}
 db_session.global_init("black_list.db")
 
 
@@ -195,7 +196,9 @@ for event in longpol.listen():
 
                                 for event in longpol.listen():
                                     if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                                        msg = event.text[31:]
+                                        msg = event.text
+                                        if '[club210161388|@club210161388]' in msg:
+                                            msg = msg[31:]
                                         if msg == 'Схема':
                                             type = "map"
                                         elif msg == 'Спутник':
@@ -233,7 +236,70 @@ for event in longpol.listen():
                                 break
 
                     elif msg == "Курс валют":
-                        pass
+                        keyboard = VkKeyboard(one_time=True)
+                        buttons = ["Евро", "Доллар", "Фунты"]
+                        button_colors = [VkKeyboardColor.PRIMARY, VkKeyboardColor.NEGATIVE,
+                                         VkKeyboardColor.POSITIVE]
+                        for btn, btn_color in zip(buttons, button_colors):
+                            keyboard.add_button(btn, btn_color)
+                        keyboard.add_line()
+                        buttons = ["Юань", "Рубль"]
+                        button_colors = [VkKeyboardColor.PRIMARY,
+                                         VkKeyboardColor.NEGATIVE]
+                        for btn, btn_color in zip(buttons, button_colors):
+                            keyboard.add_button(btn, btn_color)
+                        random_id = random.randint(0, 10000000)
+                        vk.method('messages.send',
+                                  {'chat_id': chat_id,
+                                   'message': 'Выберите валюту',
+                                   'random_id': random_id,
+                                   'keyboard': keyboard.get_keyboard()})
+                        for event in longpol.listen():
+                            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                                msg = event.text.lower()
+                                if '[club210161388|@club210161388]' in msg:
+                                    msg = msg[31:]
+                                if msg in currencies:
+                                    first_curr = currencies[msg]
+                                else:
+                                    send_messages(chat_id, 'Неккоректный ввод')
+                                    main_keyboard()
+                                    break
+                                keyboard = VkKeyboard(one_time=True)
+                                buttons = ["Евро", "Доллар", "Фунты", "Юань", "Рубль"]
+                                del buttons[buttons.index(msg.capitalize())]
+                                button_colors = [VkKeyboardColor.PRIMARY, VkKeyboardColor.NEGATIVE,
+                                                 VkKeyboardColor.POSITIVE, VkKeyboardColor.PRIMARY]
+
+                                for btn, btn_color in zip(buttons, button_colors):
+                                    keyboard.add_button(btn, btn_color)
+                                random_id = random.randint(0, 10000000)
+                                vk.method('messages.send',
+                                          {'chat_id': chat_id,
+                                           'message': 'Выберите валюту, стоймость которой нужно найти',
+                                           'random_id': random_id,
+                                           'keyboard': keyboard.get_keyboard()})
+                                for event in longpol.listen():
+                                    if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                                        msg = event.text.lower()
+                                        if '[club210161388|@club210161388]' in msg:
+                                            msg = msg[31:]
+                                        if msg in currencies:
+                                            second_curr = currencies[msg]
+                                            url = \
+                                                f'https://v6.exchangerate-api.com/v6/945d2ab03ce22c6256b18373/latest/{first_curr}'
+                                            response = requests.get(url)
+                                            if response:
+                                                json_response = response.json()
+                                                result = json_response["conversion_rates"]
+                                                send_messages(chat_id, result[f"{second_curr}"])
+                                            main_keyboard()
+                                            break
+                                        else:
+                                            send_messages(chat_id, 'Неккоректный ввод')
+                                            main_keyboard()
+                                            break
+                                break
 
                     elif msg == 'Новости':
                         html = request(

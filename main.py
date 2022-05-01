@@ -7,10 +7,8 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 import random
 import wikipedia
 import requests
-from bs4 import BeautifulSoup
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 import sys
-from requests import request
 import pymorphy2
 
 TOKEN = ''

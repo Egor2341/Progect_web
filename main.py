@@ -17,6 +17,7 @@ TOKEN = '77ab780075a079af7c67188fd1e66c59417c4ba561aca37fb1b4020bf366fcafb7038b8
 API_KEY = '40d1649f-0493-4b70-98ba-98533de7710b'
 WEATHER_API = "8494a8a0f63285886b520069bc729ace"
 ORG_API = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+API_NEWS = "8a74b144fc324f32b623c24274146570"
 search_api_server = "https://search-maps.yandex.ru/v1/"
 vk = vk_api.VkApi(token=TOKEN)
 upload = VkUpload(vk)
@@ -302,28 +303,19 @@ for event in longpol.listen():
                                 break
 
                     elif msg == 'Новости':
-                        html = request(
-                            method='GET',
-                            url='https://newssearch.yandex.ru/news/search?from=tabbar&text=новости'
-                        ).content.decode('utf-8')
-                        soup = BeautifulSoup(html, 'html.parser')
-                        n = 0
                         titles = []
-                        for post in soup.find_all(class_='news-search-story'):
-                            title = post.find(class_='news-search-story__title')
-                            if title:
-                                title = post.find(class_='news-search-story__title').text
-                                if 'новости' not in title.lower():
-                                    titles.append(title)
-                                    n += 1
-                            if n == 6:
-                                break
+                        url = f"https://newsapi.org/v2/top-headlines?country=ru&apiKey={API_NEWS}"
+                        response = requests.get(url)
+                        if response:
+                            for i in range(5):
+                                json_response = response.json()
+                                title = json_response["articles"][i]["title"]
+                                titles.append(title)
                         send_messages(chat_id, f'''{titles[0]}
                                                     {titles[1]}
                                                     {titles[2]}
                                                     {titles[3]}
-                                                    {titles[4]}
-                                                    {titles[5]}''')
+                                                    {titles[4]}''')
 
                     elif msg == 'Организации в':
                         send_messages(chat_id, 'Укажите город')

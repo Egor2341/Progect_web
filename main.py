@@ -1,6 +1,6 @@
 import os
-from project_web import db_session
-from project_web.users import User
+from . import db_session
+from .users import User
 import vk_api
 from vk_api import VkUpload
 from vk_api.longpoll import VkLongPoll, VkEventType
@@ -13,7 +13,7 @@ import sys
 from requests import request
 import pymorphy2
 
-TOKEN = '77ab780075a079af7c67188fd1e66c59417c4ba561aca37fb1b4020bf366fcafb7038b8e3f8a115bda3fb'
+TOKEN = ''
 API_KEY = '40d1649f-0493-4b70-98ba-98533de7710b'
 WEATHER_API = "8494a8a0f63285886b520069bc729ace"
 ORG_API = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
@@ -144,7 +144,7 @@ for event in longpol.listen():
     if event.type == VkEventType.MESSAGE_NEW:
         if event.to_me:
             if event.from_chat:
-                bad_words = ['']
+                bad_words = ['наркотики']
                 msg = event.text
                 user = vk.method("users.get", {"user_ids": event.user_id})
                 chat_id = event.chat_id
